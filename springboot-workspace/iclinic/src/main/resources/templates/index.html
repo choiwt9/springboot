@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+   <!-- 로그인 안되어있을 때
+    main 페이지로 이동  -->
+   
+   <div th:if="${session.user != null}">
+      <div th:include="~{common/main}"></div>
+   </div>
+    <!-- 로그인 되어있을 때
+    login 페이지로 이동  -->
+   <div th:if="${session.user == null}">
+      <div th:include="~{common/login}"></div>
+   </div>
+</body>
+</html>
