@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.KhEmail.service.MailService;
 
+import jakarta.mail.MessagingException;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -40,10 +41,29 @@ public class MailController {
 	//=> 중요한 정보의 경우 POST 자주 사용
 	
 	@PostMapping("mail")
-	public String sendAuth(String email) {
+	public String sendAuth(String email) throws MessagingException {
 		log.info("*email: {}", email);
+		/*메일 전송 테스트
+		String subject = "[KH] 테스트 메일";
+		String text = "메일 내용@@@@@@@@!!!!!!!!!!";
+		String[] to = { email };
+		
+		mService.sendMail(subject, text, to);
+		*/
+		mService.sendCode(email);
 		return "ok";
 		
+		
+	}
+	@PostMapping("/check")
+	public String checkCode(String email, String code) {
+		log.info("* email: {}, code: {}", email, code);
+		boolean result = mService.checkCode(email, code);
+		if(result) {
+			return "success";
+		}else {
+			return "failed";
+		}
 		
 	}
 	
