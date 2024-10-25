@@ -1,12 +1,18 @@
 package com.kh.KhEmail.controller;
 
+import java.util.Map;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kh.KhEmail.service.MailService;
 
 import jakarta.mail.MessagingException;
+import jakarta.security.auth.message.callback.PrivateKeyCallback.Request;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 
@@ -28,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 public class MailController {
 	
 	//생성자 주입방식을 이용하여 mainService 객체 의존성 주입
@@ -39,11 +46,29 @@ public class MailController {
 	}
 	//이메일 정보를 전달받는 메소드
 	//=> 중요한 정보의 경우 POST 자주 사용
-	
+/*	
 	@PostMapping("mail")
 	public String sendAuth(String email) throws MessagingException {
 		log.info("*email: {}", email);
-		/*메일 전송 테스트
+		//메일 전송 테스트
+		String subject = "[KH] 테스트 메일";
+		String text = "메일 내용@@@@@@@@!!!!!!!!!!";
+		String[] to = { email };
+		
+		mService.sendMail(subject, text, to);
+		
+		mService.sendCode(email);
+		return "ok";	*/
+	
+	@PostMapping("mail")
+	public String sendAuth(@RequestBody Map<String, Object>request ) throws Exception {
+		String email = (String)request.get("email");
+		
+		if(email == null) {
+			throw new Exception("필수 항목이 없습니다. (email)");	
+	}
+		/*log.info("*email: {}", email);
+	
 		String subject = "[KH] 테스트 메일";
 		String text = "메일 내용@@@@@@@@!!!!!!!!!!";
 		String[] to = { email };
@@ -51,12 +76,22 @@ public class MailController {
 		mService.sendMail(subject, text, to);
 		*/
 		mService.sendCode(email);
-		return "ok";
-		
+		return "ok";	
 		
 	}
+	
+	
+	
 	@PostMapping("/check")
-	public String checkCode(String email, String code) {
+	//public String checkCode(String email, String code) {
+	public String checkCode(@RequestBody MailRequest request) throws Exception {
+		String email = request.getEmail();
+		String code = request.getCode();
+		
+		if(email == null || code == null) {
+			throw new Exception("필수 데이터가 전달되지 않았습니다. (email, code)");
+			}
+		
 		log.info("* email: {}, code: {}", email, code);
 		boolean result = mService.checkCode(email, code);
 		if(result) {
@@ -66,6 +101,10 @@ public class MailController {
 		}
 		
 	}
-	
-
 }
+@Data
+class MailRequest{
+	private String email;
+	private String code;
+}
+
